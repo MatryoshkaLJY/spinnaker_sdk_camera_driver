@@ -2,6 +2,11 @@ master:
 [![Build Status](https://travis-ci.org/neufieldrobotics/spinnaker_sdk_camera_driver.svg?branch=master)](https://travis-ci.org/neufieldrobotics/spinnaker_sdk_camera_driver)
 dev: [![Build Status](https://travis-ci.org/neufieldrobotics/spinnaker_sdk_camera_driver.svg?branch=dev)](https://travis-ci.org/neufieldrobotics/spinnaker_sdk_camera_driver)
 
+# 注意事项
+spinnaker在这个里面下载https://coe.northeastern.edu/fieldrobotics/spinnaker_sdk_archive
+
+解压之后里面有一个install的脚本，用这个脚本安装，之后利用remove_spinQt.sh卸载掉自带qt程序，否则ros的qt无法正常使用。
+
 # spinnaker_sdk_camera_driver
 These are the ros drivers for running the Pt Grey (FLIR) cameras that use the Spinnaker SDK.  This code has been tested with various Point Grey Blackfly S (BFS) cameras. 
 
