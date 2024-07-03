@@ -97,7 +97,7 @@ void acquisition::Capture::init_variables_register_to_ros() {
     region_of_interest_set_ = false;
     skip_num_ = 20;
     init_delay_ = 1;
-    binning_ = 1;
+    binning_ = 2;
     SPINNAKER_GET_NEXT_IMAGE_TIMEOUT_ = 2000;
     todays_date_ = todays_date();
     
@@ -663,13 +663,16 @@ void acquisition::Capture::init_cameras(bool soft = false) {
     // Set cameras 1 to 4 to continuous
     for (int i = numCameras_-1 ; i >=0 ; i--) {
                                 
-        ROS_DEBUG_STREAM("Initializing camera " << cam_ids_[i] << "...");
+        ROS_INFO_STREAM("Initializing camera " << cam_ids_[i] << "...");
 
         try {
             
             cams[i].init();
 
             if (!soft) {
+
+                cams[i].setIntValue("Width", 1024);     //Adjust Height/Width here before setting Binning
+                cams[i].setIntValue("Height", 768);     //It will crash if setting width/height after binning
 
                 cams[i].set_color(color_);
                 cams[i].setIntValue("BinningHorizontal", binning_);
@@ -744,9 +747,10 @@ void acquisition::Capture::init_cameras(bool soft = false) {
                 } else{ // sets the configuration for external trigger: used for all slave cameras 
                         // in master slave setup. Also in the mode when another sensor such as IMU triggers 
                         // the camera
+                    ROS_INFO_STREAM("Fxxk, Line select.....");  //set trigger GPIO here.
                     cams[i].setEnumValue("TriggerMode", "On");
-                    cams[i].setEnumValue("LineSelector", "Line3");
-                    cams[i].setEnumValue("TriggerSource", "Line3");
+                    cams[i].setEnumValue("LineSelector", "Line0");
+                    cams[i].setEnumValue("TriggerSource", "Line0");
                     cams[i].setEnumValue("TriggerSelector", "FrameStart");
                     cams[i].setEnumValue("LineMode", "Input");
                     
@@ -997,7 +1001,7 @@ void acquisition::Capture::run_soft_trig() {
 
     // Camera directories created at first save
     
-    if (LIVE_)namedWindow("Acquisition", CV_WINDOW_NORMAL | CV_WINDOW_KEEPRATIO);
+    if (LIVE_)namedWindow("Acquisition", WINDOW_NORMAL | WINDOW_KEEPRATIO);
 
     int count = 0;
     
@@ -1046,7 +1050,7 @@ void acquisition::Capture::run_soft_trig() {
                 }
             }
 
-            int key = cvWaitKey(1);
+            int key = waitKey(1);
             ROS_DEBUG_STREAM("Key press: "<<(key & 255)<<endl);
             
             if ( (key & 255)!=255 ) {
@@ -1070,7 +1074,7 @@ void acquisition::Capture::run_soft_trig() {
                     }
                 } else if( (key & 255)==27 ) {  // ESC
                     ROS_INFO_STREAM("Terminating...");
-                    cvDestroyAllWindows();
+                    destroyAllWindows();
                     ros::shutdown();
                     break;
                 }
@@ -1098,7 +1102,7 @@ void acquisition::Capture::run_soft_trig() {
                 ROS_INFO_STREAM(" Recorded frames "<<count<<" / "<<nframes_);
                 if (count > nframes_) {
                     ROS_INFO_STREAM(nframes_ << " frames recorded. Terminating...");
-                    cvDestroyAllWindows();
+                    destroyAllWindows();
                     break;
                 }
             }
